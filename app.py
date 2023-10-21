@@ -10,3 +10,9 @@ api = Api(app)
 
 # Create the database instance
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+#sqlalchemy instance
+db = SQLAlchemy(app)
+
+# Create the database model
