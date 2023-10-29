@@ -1,10 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "index.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+{{ super() }}
+
+<div id="content">
+    <table id="data-table">
+        <h1> Game content would display here</h1>
+
+    </table>
+</div>
+{% endblock %}
+
+

@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+{%block title %} Login Page {% endblock %}
+
+{% block content %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p>{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+<!--# to redirect to same page until the profile and sql is completed-->
+<div id="content">
+    <form action="#" method="post">
+        <p >Email: </p>
+        <p><input type="text" name ="em" /></p>
+        <p>Password: </p>
+        <p><input type="text" name ="pw" /></p>
+        <p><input type="submit" value="submit"/></p>
+    </form>
+</div>
+
+{% endblock %}
