@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+{{ super() }}
+
+<div id="content">
+    <table id="data-table">
+        <h1> Collection content display for {{ user }}</h1>
+        <p> This is where game collection will be displayed, and where the user will add games </p>
+
+    </table>
+</div>
+{% endblock %}
+
+
