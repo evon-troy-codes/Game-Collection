@@ -31,14 +31,53 @@ def login():
 
 
 # for now to make sure POST is working in the login page
-@views.route('/profile/')
+@views.route('/profile/', methods=['POST', 'GET'])
 @login_required
 def profile():
-        email = current_user.email
-        password = current_user.password
-        first_name = current_user.first_name
-        last_name = current_user.last_name
-        return render_template('profile.html', user=current_user.first_name)
+    if request.method == 'POST':
+        email = request.form.get('email')
+        new_password = request.form.get('password1')
+        dob = request.form.get('dob')
+
+        current_user.first_name = request.form.get('first_name')
+        current_user.last_name = request.form.get('last_name')
+
+        update_allowed = True # Flag to check that all changes can be made.
+        # check if email is being changed and if new email already exists.
+        if email != current_user.email:
+            user = Users.query.filter_by(email=email).first()
+            if user:
+                flash('This Email already exists.', category='error')
+                update_allowed = False
+            elif len(email) > 40:
+                flash('Email must be at most 40 characters', category='error')
+                update_allowed = False
+            else:
+                current_user.email = email
+
+        # validate that a new password was provided.
+        if new_password:
+            password1 = request.form.get('password1')
+            password2 = request.form.get('password2')
+
+            if not (3 <= len(new_password) <= 50):
+                flash('New password must be between 3 and 50 characters')
+                update_allowed = False
+            elif password1 != password2:
+                flash('Passwords do not match', category='error')
+                update_allowed = False
+            else:
+                current_user.password = new_password
+
+        # update is only made to the database when it passed all the if statements.
+        if update_allowed:
+            current_user.dob = dob if dob else None
+            db.session.commit()
+            flash('Profile updated successfully.', category='success')
+
+    return render_template('profile.html', user=current_user.first_name)
+
+
 
 @views.route('/sign-up/', methods=['POST', 'GET'])
 def sign_up():
@@ -46,14 +85,13 @@ def sign_up():
         flash('You are already logged in. ')
         return redirect(url_for('views.profile'))
 
-    if request.method== 'POST':
+    if request.method == 'POST':
         email = request.form.get('email')
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
         dob = request.form.get('dob')
-
 
         user = Users.query.filter_by(email=email).first()
 
