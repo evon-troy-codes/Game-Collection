@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, session, flash
 from views import views as views_blueprint
-from models import db, Users, Games
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 import mysql.connector
-from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin
 
 # Create the application instance
 app = Flask(__name__)
@@ -18,6 +17,7 @@ db = SQLAlchemy(app)
 
 
 class Game(db.Model):
+    __tablename__ = 'game'
     game_id = db.Column(db.Integer, primary_key=True)
     genre = db.Column(db.String(100))
     MetacriticRating = db.Column(db.Integer)
@@ -29,7 +29,8 @@ class Game(db.Model):
     AverageRating = db.Column(db.Float(precision=2))
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
+    __tablename__ = 'user'
     user_id = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(75), nullable=False)
@@ -39,11 +40,13 @@ class User(db.Model):
 
 
 class GameCollection(db.Model):
+    __tablename__ = 'gamecollection'
     collection_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
 
 
 class GameCollectionItems(db.Model):
+    __tablename__ = 'gamecollectionitems'
     collection_items_id = db.Column(db.Integer, primary_key=True)
     game_collection_id = db.Column(db.Integer, db.ForeignKey('gamecollection.collection_id'))
     game_id = db.Column(db.Integer, db.ForeignKey('game.game_id'))
@@ -53,15 +56,13 @@ class GameCollectionItems(db.Model):
     total_play_time = db.Column(db.Integer)
 
 
-login_manager = LoginManager()
+login_manager = LoginManager(app)
 login_manager.login_view = 'views.login'
-login_manager.init_app(app)
-
+# login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(id):
-    return Users.query.get(int(id))
-
+    return User.query.get(int(id))
 
 app.register_blueprint(views_blueprint, url_prefix='/')
 app.secret_key = 'fdsagasggsdf gsdfdas'
