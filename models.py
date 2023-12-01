@@ -1,6 +1,8 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
+
+
 class Users(db.Model, UserMixin):
     user_id = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.String(50), nullable=False)
@@ -31,7 +33,8 @@ class Games(db.Model):
 # class GameCollection(db.Model):
 #     collection_id = db.Column(db.Integer, primary_key=True)
 #     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-#     user = db.relationship('Users', backref=db.backref('game_collections', lazy=True))
+#
+#     # user = db.relationship('Users', backref=db.backref('game_collections', lazy=True))
 #
 #
 # class GameCollectionItems(db.Model):

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for, session, flash
-from models import db, Users
+from models import db, Users, Games
 from flask_login import login_user, login_required, logout_user, current_user
+from sqlalchemy import text
 
 views = Blueprint(__name__, 'views')
 
@@ -42,7 +43,7 @@ def profile():
         current_user.first_name = request.form.get('first_name')
         current_user.last_name = request.form.get('last_name')
 
-        update_allowed = True # Flag to check that all changes can be made.
+        update_allowed = True  # Flag to check that all changes can be made.
         # check if email is being changed and if new email already exists.
         if email != current_user.email:
             user = Users.query.filter_by(email=email).first()
@@ -105,6 +106,8 @@ def sign_up():
         elif len(password1) > 50:
             flash('Password at most can be 50 characters', category='error')
         else:
+            # if dob is not entered, it will just be null
+            dob = dob if dob else None
             new_user = Users(email=email, first_name=first_name,last_name=last_name, password=password1, dob=dob)
             db.session.add(new_user)
             db.session.commit()
@@ -126,7 +129,11 @@ def logout():
 
 @views.route('/games/')
 def games():
-    return render_template('games.html')
+    # game = Games.query.all()
+    # retrieves all game objects sorted by title
+
+    game = db.session.execute(text("SELECT * FROM games ORDER BY title")).fetchall()
+    return render_template('games.html', games=game)
 
 
 @views.route('/collection/')

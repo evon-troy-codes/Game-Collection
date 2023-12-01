@@ -3,10 +3,38 @@
 {% block content %}
 {{ super() }}
 
-<div id="content">
-    <table id="data-table">
-        <h1> Game content would display here</h1>
 
+<div id="content">
+    <h1> Games Table</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>ESRB</th>
+                <th>Developer</th>
+                <th>Rating</th>
+                <th>Metacritic</th>
+                <th>Released</th>
+                <th>Description</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for game in games %}
+                <tr>
+                    <td>{{game.title}}</td>
+                    <td>{{game.genre}}</td>
+                    <td>{{game.esrb}}</td>
+                    <td>{{game.developer}}</td>
+                    <td>{{game.AverageRating}}</td>
+                    <td>{{game.MetacriticRating}}</td>
+                    <td>{{game.release_date}}</td>
+                    <td>{{game.description}}</td>
+                    <td>nothing</td>
+                </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}
