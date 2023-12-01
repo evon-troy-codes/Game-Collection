@@ -1,89 +1,43 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
-from sqlalchemy.dialects.mssql.information_schema import views
-
-from models import User, GameCollection, GameCollectionItems, db
+from models import User, GameCollection, GameCollectionItems
+from extensions import db  # Import the db instance
 
 views_blueprint = Blueprint('views', __name__)
 
 
-@views.route('/')
+@views_blueprint.route('/')
 def home():
     return redirect(url_for('views.games'))
 
 
-@views.route('/login/', methods=['POST', 'GET'])
+@views_blueprint.route('/login/', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
-        if user:
-            if user and user.password == password:
-                flash('Logged in successfully.')
-                login_user(user, remember=True)
-                return redirect(url_for('views.profile'))
-            else:
-                flash('Incorrect password, try again.')
+        if user and user.password == password:
+            flash('Logged in successfully.')
+            login_user(user, remember=True)
+            return redirect(url_for('views.profile'))
         else:
-            flash('Email does not exist.', category='error')
+            flash('Incorrect email or password.', category='error')
 
     return render_template('login.html', user=current_user)
 
 
-# for now to make sure POST is working in the login page
-@views.route('/profile/', methods=['POST', 'GET'])
+@views_blueprint.route('/profile/', methods=['POST', 'GET'])
 @login_required
 def profile():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        new_password = request.form.get('password1')
-        dob = request.form.get('dob')
-
-        current_user.first_name = request.form.get('first_name')
-        current_user.last_name = request.form.get('last_name')
-
-        update_allowed = True  # Flag to check that all changes can be made.
-        # check if email is being changed and if new email already exists.
-        if email != current_user.email:
-            user = User.query.filter_by(email=email).first()
-            if user:
-                flash('This Email already exists.', category='error')
-                update_allowed = False
-            elif len(email) > 40:
-                flash('Email must be at most 40 characters', category='error')
-                update_allowed = False
-            else:
-                current_user.email = email
-
-        # validate that a new password was provided.
-        if new_password:
-            password1 = request.form.get('password1')
-            password2 = request.form.get('password2')
-
-            if not (3 <= len(new_password) <= 50):
-                flash('New password must be between 3 and 50 characters')
-                update_allowed = False
-            elif password1 != password2:
-                flash('Passwords do not match', category='error')
-                update_allowed = False
-            else:
-                current_user.password = new_password
-
-        # update is only made to the database when it passed all the if statements.
-        if update_allowed:
-            current_user.dob = dob if dob else None
-            db.session.commit()
-            flash('Profile updated successfully.', category='success')
-
-    return render_template('profile.html', user=current_user.first_name)
+    return render_template('profile.html', user=current_user)
 
 
-@views.route('/sign-up/', methods=['POST', 'GET'])
+@views_blueprint.route('/sign-up/', methods=['POST', 'GET'])
 def sign_up():
     if current_user.is_authenticated:
-        flash('You are already logged in. ')
+        flash('You are already logged in.')
         return redirect(url_for('views.profile'))
 
     if request.method == 'POST':
@@ -96,41 +50,38 @@ def sign_up():
 
         user = User.query.filter_by(email=email).first()
 
-        # category will be used when bootstrap is added.
         if user:
             flash('Email already exists.', category='error')
         elif len(email) > 40:
-            flash('Email must be at least 40 characters', category='error')
+            flash('Email must be less than 40 characters', category='error')
         elif password1 != password2:
             flash('Passwords don\'t match', category='error')
-        elif len(password1) > 50:
-            flash('Password at most can be 50 characters', category='error')
+        elif len(password1) < 3 or len(password1) > 50:
+            flash('Password must be between 3 and 50 characters', category='error')
         else:
             new_user = User(email=email, first_name=first_name, last_name=last_name, password=password1, dob=dob)
             db.session.add(new_user)
             db.session.commit()
             flash('Account created', category='success')
-
             return redirect(url_for('views.login'))
 
     return render_template('sign_up.html')
 
 
-@views.route('/logout/')
+@views_blueprint.route('/logout/')
 @login_required
 def logout():
-    user = current_user.first_name
     logout_user()
-    flash(f'{user} logged out successfully', category='success')
+    flash('You have been logged out.')
     return redirect(url_for('views.login'))
 
 
-@views.route('/games/')
+@views_blueprint.route('/games/')
 def games():
     return render_template('games.html')
 
 
-@views.route('/collection/')
+@views_blueprint.route('/collection/')
 @login_required
 def collection():
     return render_template('collection.html', user=current_user.first_name)
