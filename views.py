@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
-from models import User, GameCollection, GameCollectionItems
+from models import User, GameCollection, GameCollectionItems, Games
+from datetime import datetime
 from extensions import db  # Import the db instance
 
 views_blueprint = Blueprint('views', __name__)
@@ -28,9 +29,43 @@ def login():
     return render_template('login.html', user=current_user)
 
 
-@views_blueprint.route('/profile/', methods=['POST', 'GET'])
+@views_blueprint.route('/profile/', methods=['GET', 'POST'])
 @login_required
 def profile():
+    if request.method == 'POST':
+        new_first_name = request.form.get('first_name')
+        new_last_name = request.form.get('last_name')
+        new_email = request.form.get('email')
+        new_dob = request.form.get('dob')
+
+        updated = False
+        if new_first_name and new_first_name != current_user.first_name:
+            current_user.first_name = new_first_name
+            updated = True
+
+        if new_last_name and new_last_name != current_user.last_name:
+            current_user.last_name = new_last_name
+            updated = True
+
+        if new_email and new_email != current_user.email:
+            current_user.email = new_email
+            updated = True
+
+        if new_dob:
+            try:
+                new_dob = datetime.strptime(new_dob, '%Y-%m-%d')
+                if new_dob != current_user.dob:
+                    current_user.dob = new_dob
+                    updated = True
+            except ValueError:
+                flash('Invalid date format.')
+
+        if updated:
+            db.session.commit()
+            flash('Profile updated successfully.')
+        else:
+            flash('No changes were made.')
+
     return render_template('profile.html', user=current_user)
 
 

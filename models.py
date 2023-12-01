@@ -32,3 +32,16 @@ class GameCollectionItems(db.Model):
     UserRating = db.Column(db.Integer)
     favorite_games = db.Column(db.Boolean)
     total_play_time = db.Column(db.Integer)
+
+
+class Games(db.Model):
+    __tablename__ = 'games'
+    game_id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    description = db.Column(db.Text)
+    genre = db.Column(db.String(100))
+    MetaCriticRating = db.Column(db.Integer)
+    esrb = db.Column(db.String(5))
+    developer = db.Column(db.String(100))
+    release_date = db.Column(db.Date)
+    AverageRating = db.Column(db.Numeric(3, 2))
