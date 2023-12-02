@@ -10,12 +10,12 @@ class Users(db.Model, UserMixin):
     dob = db.Column(db.Date, default=None)
     first_name = db.Column(db.String(40))
     last_name = db.Column(db.String(40))
+    # game_collections = db.relationship('GameCollection', backref='user', lazy=True)
 
     @property
     def id(self):
         return self.user_id
 
-    # here add relationship field for game collection
 
 
 class Games(db.Model):
@@ -33,8 +33,8 @@ class Games(db.Model):
 # class GameCollection(db.Model):
 #     collection_id = db.Column(db.Integer, primary_key=True)
 #     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+#     items = db.relationship('GameCollectionItems', backref='gamecollection', lazy=True)
 #
-#     # user = db.relationship('Users', backref=db.backref('game_collections', lazy=True))
 #
 #
 # class GameCollectionItems(db.Model):
