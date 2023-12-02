@@ -5,7 +5,8 @@
 
 
 <div id="content">
-    <h1> Games Table</h1>
+    <h1> Games </h1>
+    <form method="POST">
     <table>
         <thead>
             <tr>
@@ -17,26 +18,35 @@
                 <th>Metacritic</th>
                 <th>Released</th>
                 <th>Description</th>
-                <th>Action</th>
+                 {% if current_user.is_authenticated %}
+                    <th>Collection</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
-            {% for game in games %}
-                <tr>
-                    <td>{{game.title}}</td>
-                    <td>{{game.genre}}</td>
-                    <td>{{game.esrb}}</td>
-                    <td>{{game.developer}}</td>
-                    <td>{{game.AverageRating}}</td>
-                    <td>{{game.MetacriticRating}}</td>
-                    <td>{{game.release_date}}</td>
-                    <td>{{game.description}}</td>
-                    <td>nothing</td>
-                </tr>
-            {% endfor %}
+                {% for game in games %}
+                    <tr>
+                        <td>{{game.title}}</td>
+                        <td>{{game.genre}}</td>
+                        <td>{{game.esrb}}</td>
+                        <td>{{game.developer}}</td>
+                        <td>{{game.AverageRating}}</td>
+                        <td>{{game.MetacriticRating}}</td>
+                        <td>{{game.release_date}}</td>
+                        <td>{{game.description}}</td>
+                        <td>
+                            {% if current_user.is_authenticated %}
+                                {% if game_in_collection(game.game_id, current_user.user_id) %}
+                                    <button type="submit" name="remove" value="{{game.game_id}}">-</button>
+                                {% else %}
+                                    <button type ="submit" name="add" value="{{game.game_id}}">+</button>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
         </tbody>
     </table>
+    </form>
 </div>
 {% endblock %}
-
-
