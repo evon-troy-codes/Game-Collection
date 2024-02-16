@@ -1,4 +1,4 @@
-# FinalProject Group-3
+# Game Collection
 
 **Team Members:**
 - Manuel Guerra
